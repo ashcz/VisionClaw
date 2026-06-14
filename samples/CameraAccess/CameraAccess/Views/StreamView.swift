@@ -22,6 +22,7 @@ struct StreamView: View {
   @ObservedObject var wearablesVM: WearablesViewModel
   @ObservedObject var geminiVM: GeminiSessionViewModel
   @ObservedObject var webrtcVM: WebRTCSessionViewModel
+  @ObservedObject var hecaVM: HECASessionViewModel
 
   var body: some View {
     ZStack {
@@ -97,9 +98,27 @@ struct StreamView: View {
       // Bottom controls layer
       VStack {
         Spacer()
-        ControlsView(viewModel: viewModel, geminiVM: geminiVM, webrtcVM: webrtcVM)
+        ControlsView(viewModel: viewModel, geminiVM: geminiVM, webrtcVM: webrtcVM, hecaVM: hecaVM)
       }
       .padding(.all, 24)
+
+      // HECA assessment progress overlay
+      if hecaVM.isAssessing {
+        ZStack {
+          Color.black.opacity(0.6).edgesIgnoringSafeArea(.all)
+          VStack(spacing: 12) {
+            ProgressView()
+              .scaleEffect(1.4)
+              .tint(.white)
+            Text("Performing HECA\u{2026}")
+              .font(.system(size: 15, weight: .medium))
+              .foregroundColor(.white)
+          }
+          .padding(24)
+          .background(Color.black.opacity(0.5))
+          .cornerRadius(16)
+        }
+      }
     }
     .onDisappear {
       Task {
@@ -143,6 +162,19 @@ struct StreamView: View {
     } message: {
       Text(webrtcVM.errorMessage ?? "")
     }
+    // HECA result sheet
+    .sheet(isPresented: $hecaVM.showResult) {
+      HECAResultView(hecaVM: hecaVM)
+    }
+    // HECA error alert
+    .alert("HECA", isPresented: Binding(
+      get: { hecaVM.errorMessage != nil },
+      set: { if !$0 { hecaVM.errorMessage = nil } }
+    )) {
+      Button("OK") { hecaVM.errorMessage = nil }
+    } message: {
+      Text(hecaVM.errorMessage ?? "")
+    }
   }
 }
 
@@ -151,6 +183,7 @@ struct ControlsView: View {
   @ObservedObject var viewModel: StreamSessionViewModel
   @ObservedObject var geminiVM: GeminiSessionViewModel
   @ObservedObject var webrtcVM: WebRTCSessionViewModel
+  @ObservedObject var hecaVM: HECASessionViewModel
 
   var body: some View {
     // Controls row
@@ -205,6 +238,13 @@ struct ControlsView: View {
       }
       .opacity(geminiVM.isGeminiActive ? 0.4 : 1.0)
       .disabled(geminiVM.isGeminiActive)
+
+      // HECA button -- one-shot High Energy Control Assessment of the current frame
+      CircleButton(icon: "shield.lefthalf.filled", text: "HECA") {
+        hecaVM.performHECA(on: viewModel.currentVideoFrame)
+      }
+      .opacity(hecaVM.isAssessing ? 0.4 : 1.0)
+      .disabled(hecaVM.isAssessing)
     }
   }
 }

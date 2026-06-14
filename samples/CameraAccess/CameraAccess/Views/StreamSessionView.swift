@@ -21,6 +21,7 @@ struct StreamSessionView: View {
   @StateObject private var viewModel: StreamSessionViewModel
   @StateObject private var geminiVM = GeminiSessionViewModel()
   @StateObject private var webrtcVM = WebRTCSessionViewModel()
+  @StateObject private var hecaVM = HECASessionViewModel()
 
   init(wearables: WearablesInterface, wearablesVM: WearablesViewModel) {
     self.wearables = wearables
@@ -32,10 +33,10 @@ struct StreamSessionView: View {
     ZStack {
       if viewModel.isStreaming {
         // Full-screen video view with streaming controls
-        StreamView(viewModel: viewModel, wearablesVM: wearablesViewModel, geminiVM: geminiVM, webrtcVM: webrtcVM)
+        StreamView(viewModel: viewModel, wearablesVM: wearablesViewModel, geminiVM: geminiVM, webrtcVM: webrtcVM, hecaVM: hecaVM)
       } else {
         // Pre-streaming setup view with permissions and start button
-        NonStreamView(viewModel: viewModel, wearablesVM: wearablesViewModel)
+        NonStreamView(viewModel: viewModel, wearablesVM: wearablesViewModel, hecaVM: hecaVM)
       }
     }
     .task {

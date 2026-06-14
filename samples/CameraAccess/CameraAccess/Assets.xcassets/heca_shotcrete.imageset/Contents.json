@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "shotcrete.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

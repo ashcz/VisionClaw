@@ -20,8 +20,11 @@ import SwiftUI
 struct NonStreamView: View {
   @ObservedObject var viewModel: StreamSessionViewModel
   @ObservedObject var wearablesVM: WearablesViewModel
+  @ObservedObject var hecaVM: HECASessionViewModel
   @State private var sheetHeight: CGFloat = 300
   @State private var showSettings = false
+  @State private var showHECASamples = false
+  @State private var showHECAHistory = false
 
   var body: some View {
     ZStack {
@@ -33,6 +36,12 @@ struct NonStreamView: View {
           Menu {
             Button("Settings") {
               showSettings = true
+            }
+            Button("HECA: Test Images") {
+              showHECASamples = true
+            }
+            Button("HECA: History") {
+              showHECAHistory = true
             }
             Button("Disconnect", role: .destructive) {
               wearablesVM.disconnectGlasses()
@@ -125,9 +134,43 @@ struct NonStreamView: View {
         }
       }
       .padding(.all, 24)
+
+      if hecaVM.isAssessing {
+        ZStack {
+          Color.black.opacity(0.6).edgesIgnoringSafeArea(.all)
+          VStack(spacing: 12) {
+            ProgressView()
+              .scaleEffect(1.4)
+              .tint(.white)
+            Text("Performing HECA\u{2026}")
+              .font(.system(size: 15, weight: .medium))
+              .foregroundColor(.white)
+          }
+          .padding(24)
+          .background(Color.black.opacity(0.5))
+          .cornerRadius(16)
+        }
+      }
     }
     .sheet(isPresented: $showSettings) {
       SettingsView()
+    }
+    .sheet(isPresented: $showHECASamples) {
+      HECASamplePickerView(hecaVM: hecaVM)
+    }
+    .sheet(isPresented: $showHECAHistory) {
+      HECAHistoryView()
+    }
+    .sheet(isPresented: $hecaVM.showResult) {
+      HECAResultView(hecaVM: hecaVM)
+    }
+    .alert("HECA", isPresented: Binding(
+      get: { hecaVM.errorMessage != nil },
+      set: { if !$0 { hecaVM.errorMessage = nil } }
+    )) {
+      Button("OK") { hecaVM.errorMessage = nil }
+    } message: {
+      Text(hecaVM.errorMessage ?? "")
     }
     .sheet(isPresented: $wearablesVM.showGettingStartedSheet) {
       if #available(iOS 16.0, *) {
