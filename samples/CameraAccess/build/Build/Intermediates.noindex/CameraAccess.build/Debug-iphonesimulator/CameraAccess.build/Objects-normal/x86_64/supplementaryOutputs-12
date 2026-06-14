@@ -1,0 +1,23 @@
+{
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Gemini/AudioManager.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/AudioManager.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/AudioManager.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/AudioManager.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/AudioManager.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/AudioManager.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Gemini/GeminiConfig.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiConfig.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiConfig.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiConfig.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiConfig.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiConfig.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Gemini/GeminiLiveService.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiLiveService.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiLiveService.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiLiveService.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiLiveService.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/GeminiLiveService.swiftdeps"
+  }
+}

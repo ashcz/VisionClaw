@@ -1,0 +1,23 @@
+{
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Views/Components/CircleButton.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CircleButton.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CircleButton.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CircleButton.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CircleButton.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CircleButton.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Views/Components/CustomButton.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CustomButton.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CustomButton.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CustomButton.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CustomButton.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CustomButton.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Views/NonStreamView.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/NonStreamView.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/NonStreamView.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/NonStreamView.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/NonStreamView.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/NonStreamView.swiftdeps"
+  }
+}

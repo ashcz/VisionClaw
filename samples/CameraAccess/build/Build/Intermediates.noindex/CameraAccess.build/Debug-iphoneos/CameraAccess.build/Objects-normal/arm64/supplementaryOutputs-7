@@ -1,0 +1,23 @@
+{
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/WebRTC/CustomVideoCapturer.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/CustomVideoCapturer.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/CustomVideoCapturer.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/CustomVideoCapturer.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/CustomVideoCapturer.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/CustomVideoCapturer.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/WebRTC/WebRTCConfig.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCConfig.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCConfig.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCConfig.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCConfig.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCConfig.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/WebRTC/WebRTCSessionViewModel.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCSessionViewModel.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCSessionViewModel.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCSessionViewModel.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCSessionViewModel.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphoneos/CameraAccess.build/Objects-normal/arm64/WebRTCSessionViewModel.swiftdeps"
+  }
+}

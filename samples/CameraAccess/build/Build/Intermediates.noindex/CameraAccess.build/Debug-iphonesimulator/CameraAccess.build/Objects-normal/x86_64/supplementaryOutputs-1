@@ -1,0 +1,23 @@
+{
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/CameraAccessApp.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CameraAccessApp.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CameraAccessApp.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CameraAccessApp.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CameraAccessApp.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/CameraAccessApp.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/ViewModels/DebugMenuViewModel.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/DebugMenuViewModel.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/DebugMenuViewModel.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/DebugMenuViewModel.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/DebugMenuViewModel.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/DebugMenuViewModel.swiftdeps"
+  },
+  "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/CameraAccess/Views/HomeScreenView.swift" : {
+    "const-values" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/HomeScreenView.swiftconstvalues",
+    "dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/HomeScreenView.d",
+    "diagnostics" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/HomeScreenView.dia",
+    "object" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/HomeScreenView.o",
+    "swift-dependencies" : "/Users/ashishgarg/Documents/GitHub/VisionClaw/samples/CameraAccess/build/Build/Intermediates.noindex/CameraAccess.build/Debug-iphonesimulator/CameraAccess.build/Objects-normal/x86_64/HomeScreenView.swiftdeps"
+  }
+}
