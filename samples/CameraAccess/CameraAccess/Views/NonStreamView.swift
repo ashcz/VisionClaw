@@ -134,23 +134,6 @@ struct NonStreamView: View {
         }
       }
       .padding(.all, 24)
-
-      if hecaVM.isAssessing {
-        ZStack {
-          Color.black.opacity(0.6).edgesIgnoringSafeArea(.all)
-          VStack(spacing: 12) {
-            ProgressView()
-              .scaleEffect(1.4)
-              .tint(.white)
-            Text("Performing HECA\u{2026}")
-              .font(.system(size: 15, weight: .medium))
-              .foregroundColor(.white)
-          }
-          .padding(24)
-          .background(Color.black.opacity(0.5))
-          .cornerRadius(16)
-        }
-      }
     }
     .sheet(isPresented: $showSettings) {
       SettingsView()
@@ -161,7 +144,7 @@ struct NonStreamView: View {
     .sheet(isPresented: $showHECAHistory) {
       HECAHistoryView()
     }
-    .sheet(isPresented: $hecaVM.showResult) {
+    .sheet(isPresented: $hecaVM.showChat) {
       HECAResultView(hecaVM: hecaVM)
     }
     .alert("HECA", isPresented: Binding(

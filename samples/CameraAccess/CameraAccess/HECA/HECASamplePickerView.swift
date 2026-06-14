@@ -21,7 +21,7 @@ struct HECASamplePickerView: View {
             Button {
               dismiss()
               if let image = sample.image {
-                hecaVM.performHECA(on: image)
+                hecaVM.startHECA(on: image)
               }
             } label: {
               VStack(spacing: 6) {

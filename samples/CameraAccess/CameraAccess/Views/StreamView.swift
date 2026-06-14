@@ -101,24 +101,9 @@ struct StreamView: View {
         ControlsView(viewModel: viewModel, geminiVM: geminiVM, webrtcVM: webrtcVM, hecaVM: hecaVM)
       }
       .padding(.all, 24)
-
-      // HECA assessment progress overlay
-      if hecaVM.isAssessing {
-        ZStack {
-          Color.black.opacity(0.6).edgesIgnoringSafeArea(.all)
-          VStack(spacing: 12) {
-            ProgressView()
-              .scaleEffect(1.4)
-              .tint(.white)
-            Text("Performing HECA\u{2026}")
-              .font(.system(size: 15, weight: .medium))
-              .foregroundColor(.white)
-          }
-          .padding(24)
-          .background(Color.black.opacity(0.5))
-          .cornerRadius(16)
-        }
-      }
+    }
+    .onAppear {
+      hecaVM.frameProvider = { viewModel.currentVideoFrame }
     }
     .onDisappear {
       Task {
@@ -162,8 +147,8 @@ struct StreamView: View {
     } message: {
       Text(webrtcVM.errorMessage ?? "")
     }
-    // HECA result sheet
-    .sheet(isPresented: $hecaVM.showResult) {
+    // HECA conversation sheet
+    .sheet(isPresented: $hecaVM.showChat) {
       HECAResultView(hecaVM: hecaVM)
     }
     // HECA error alert
@@ -239,12 +224,12 @@ struct ControlsView: View {
       .opacity(geminiVM.isGeminiActive ? 0.4 : 1.0)
       .disabled(geminiVM.isGeminiActive)
 
-      // HECA button -- one-shot High Energy Control Assessment of the current frame
+      // HECA button -- start an interactive High Energy Control Assessment
       CircleButton(icon: "shield.lefthalf.filled", text: "HECA") {
-        hecaVM.performHECA(on: viewModel.currentVideoFrame)
+        hecaVM.startHECA(on: viewModel.currentVideoFrame)
       }
-      .opacity(hecaVM.isAssessing ? 0.4 : 1.0)
-      .disabled(hecaVM.isAssessing)
+      .opacity(hecaVM.isResponding ? 0.4 : 1.0)
+      .disabled(hecaVM.isResponding)
     }
   }
 }

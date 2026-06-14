@@ -26,7 +26,7 @@ enum HECAStore {
 
   /// Save a report plus its original and annotated images. Returns the record directory.
   @discardableResult
-  static func save(report: HECAReport, original: UIImage) throws -> URL {
+  static func save(report: HECAReport, original: UIImage, transcript: String? = nil) throws -> URL {
     let stamp = Self.timestamp(report.createdAt)
     let dir = rootDirectory.appendingPathComponent(stamp, isDirectory: true)
     try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -37,6 +37,12 @@ enum HECAStore {
     encoder.dateEncodingStrategy = .iso8601
     let json = try encoder.encode(report)
     try json.write(to: dir.appendingPathComponent("report.json"))
+
+    // transcript.txt (conversation log, when provided)
+    if let transcript, !transcript.isEmpty {
+      try? transcript.write(to: dir.appendingPathComponent("transcript.txt"),
+                            atomically: true, encoding: .utf8)
+    }
 
     // original.jpg
     if let jpeg = original.jpegData(compressionQuality: 0.85) {

@@ -12,6 +12,41 @@
 //
 
 import Foundation
+import UIKit
+
+/// A single message in the interactive HECA conversation.
+struct HECAChatMessage: Identifiable {
+  enum Role {
+    case user
+    case assistant
+    case system
+  }
+
+  let id = UUID()
+  let role: Role
+  let text: String
+  /// Optional image attached to this message (e.g. a captured job-site area).
+  let image: UIImage?
+  let timestamp = Date()
+
+  init(role: Role, text: String, image: UIImage? = nil) {
+    self.role = role
+    self.text = text
+    self.image = image
+  }
+}
+
+/// One assistant turn: a conversational message plus the full updated report.
+struct HECATurn: Codable {
+  let assistantMessage: String
+  let report: HECAReport
+
+  enum CodingKeys: String, CodingKey {
+    case assistantMessage = "assistant_message"
+    case report
+  }
+}
+
 
 /// The energy sources from the EEI/CSRA "energy wheel".
 enum HECAEnergySource: String, Codable, CaseIterable {

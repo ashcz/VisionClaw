@@ -1,8 +1,10 @@
 //
 // HECAService.swift
 //
-// Performs a one-shot HECA assessment by sending a captured image to the Gemini
-// `generateContent` REST endpoint and decoding the structured JSON response.
+// Drives the interactive HECA conversation against the Gemini `generateContent`
+// REST endpoint. It keeps the full conversation history (images + text) so each
+// turn refines a single, evolving report. Every assistant turn returns both a
+// chat message and the complete, up-to-date structured report.
 //
 
 import UIKit
@@ -34,38 +36,76 @@ enum HECAServiceError: LocalizedError {
 final class HECAService {
   private let session: URLSession
 
+  /// Conversation history in Gemini `contents` format.
+  private var contents: [[String: Any]] = []
+
   init() {
     let config = URLSessionConfiguration.default
     config.timeoutIntervalForRequest = 60
     self.session = URLSession(configuration: config)
   }
 
-  /// Run a HECA assessment on the given image.
-  func assess(image: UIImage) async throws -> HECAReport {
-    guard let url = HECAConfig.generateContentURL() else {
-      throw HECAServiceError.notConfigured
-    }
+  /// Clear the conversation to begin a fresh assessment.
+  func reset() {
+    contents = []
+  }
+
+  /// Start the assessment with the first captured image.
+  func start(image: UIImage) async throws -> HECATurn {
+    reset()
+    let parts = try Self.imageParts(
+      image: image,
+      text: "Start a HECA. Here is the first area. Assess it, then check in with me."
+    )
+    appendUser(parts: parts)
+    return try await complete()
+  }
+
+  /// Add another captured area to the ongoing assessment.
+  func addArea(image: UIImage, note: String?) async throws -> HECATurn {
+    let text = note?.isEmpty == false
+      ? "Here is another area to assess. Note from me: \(note!)"
+      : "Here is another area to assess."
+    let parts = try Self.imageParts(image: image, text: text)
+    appendUser(parts: parts)
+    return try await complete()
+  }
+
+  /// Send a text comment / question from the worker.
+  func send(text: String) async throws -> HECATurn {
+    appendUser(parts: [["text": text]])
+    return try await complete()
+  }
+
+  // MARK: - Private
+
+  private func appendUser(parts: [[String: Any]]) {
+    contents.append(["role": "user", "parts": parts])
+  }
+
+  private static func imageParts(image: UIImage, text: String) throws -> [[String: Any]] {
     guard let jpeg = image.jpegData(compressionQuality: HECAConfig.jpegQuality) else {
       throw HECAServiceError.encodingFailed
     }
+    return [
+      ["text": text],
+      ["inlineData": ["mimeType": "image/jpeg", "data": jpeg.base64EncodedString()]]
+    ]
+  }
+
+  /// Send the current conversation and decode the assistant turn.
+  private func complete() async throws -> HECATurn {
+    guard let url = HECAConfig.generateContentURL() else {
+      throw HECAServiceError.notConfigured
+    }
 
     let body: [String: Any] = [
-      "systemInstruction": [
-        "parts": [["text": HECAConfig.systemPrompt]]
-      ],
-      "contents": [
-        [
-          "role": "user",
-          "parts": [
-            ["text": "Perform a HECA on this image and return the structured result."],
-            ["inlineData": ["mimeType": "image/jpeg", "data": jpeg.base64EncodedString()]]
-          ]
-        ]
-      ],
+      "systemInstruction": ["parts": [["text": HECAConfig.systemPrompt]]],
+      "contents": contents,
       "generationConfig": [
-        "temperature": 0.2,
+        "temperature": 0.3,
         "responseMimeType": "application/json",
-        "responseSchema": HECAConfig.responseSchema()
+        "responseSchema": HECAConfig.turnResponseSchema()
       ]
     ]
 
@@ -85,15 +125,20 @@ final class HECAService {
     }
 
     let text = try Self.extractText(from: data)
-    guard let reportData = text.data(using: .utf8) else {
+    guard let turnData = text.data(using: .utf8) else {
       throw HECAServiceError.noContent
     }
 
+    let turn: HECATurn
     do {
-      return try JSONDecoder().decode(HECAReport.self, from: reportData)
+      turn = try JSONDecoder().decode(HECATurn.self, from: turnData)
     } catch {
       throw HECAServiceError.decoding(error.localizedDescription)
     }
+
+    // Record the assistant's raw JSON turn so it has context on the next call.
+    contents.append(["role": "model", "parts": [["text": text]]])
+    return turn
   }
 
   /// Pull the model's text part out of the generateContent response envelope.
@@ -112,3 +157,4 @@ final class HECAService {
     return text
   }
 }
+
