@@ -2,6 +2,15 @@
 .DS_Store
 xcuserdata/
 
+# Xcode build output / DerivedData
+build/
+DerivedData/
+*.xcuserstate
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
 # FastVLM model files (large binaries, download separately)
 CameraAccess/FastVLM/models/
 
