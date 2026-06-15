@@ -1,10 +1,11 @@
 //
 // HECAService.swift
 //
-// Drives the interactive HECA conversation against the Gemini `generateContent`
-// REST endpoint. It keeps the full conversation history (images + text) so each
-// turn refines a single, evolving report. Every assistant turn returns both a
-// chat message and the complete, up-to-date structured report.
+// Drives the structured HECA grid assessment (a single-shot, structured vision
+// call) and the optional advisor chat against the Gemini `generateContent` REST
+// endpoint. The grid call returns the full EEI catalog of 13 high-energy hazards
+// with their controls, comments, and annotated evidence. The chat is seeded with
+// the assessed image so the advisor can answer follow-up questions.
 //
 
 import UIKit
@@ -32,12 +33,19 @@ enum HECAServiceError: LocalizedError {
   }
 }
 
+/// Transport result of a single-shot grid assessment.
+struct HECAGridResult: Codable {
+  let summary: String
+  let assessments: [HECACategoryAssessment]
+}
+
 @MainActor
 final class HECAService {
   private let session: URLSession
 
-  /// Conversation history in Gemini `contents` format.
-  private var contents: [[String: Any]] = []
+  /// Advisor chat history (seeded with the assessed image).
+  private var chatContents: [[String: Any]] = []
+  private var chatSeeded = false
 
   init() {
     let config = URLSessionConfiguration.default
@@ -45,70 +53,87 @@ final class HECAService {
     self.session = URLSession(configuration: config)
   }
 
-  /// Clear the conversation to begin a fresh assessment.
+  /// Clear the advisor chat to begin fresh.
   func reset() {
-    contents = []
+    chatContents = []
+    chatSeeded = false
   }
 
-  /// Start the assessment with the first captured image.
-  func start(image: UIImage) async throws -> HECATurn {
-    reset()
-    let parts = try Self.imageParts(
-      image: image,
-      text: "Start a HECA. Here is the first area. Assess it, then check in with me."
-    )
-    appendUser(parts: parts)
-    return try await complete()
+  // MARK: - Grid assessment
+
+  /// Run a single-shot structured HECA assessment of the captured image.
+  func assessGrid(image: UIImage) async throws -> HECAGridResult {
+    guard let url = HECAConfig.generateContentURL() else {
+      throw HECAServiceError.notConfigured
+    }
+    guard let jpeg = image.jpegData(compressionQuality: HECAConfig.jpegQuality) else {
+      throw HECAServiceError.encodingFailed
+    }
+
+    let userParts: [[String: Any]] = [
+      ["text": "Assess this job-site photo for high-energy hazards and their controls."],
+      ["inlineData": ["mimeType": "image/jpeg", "data": jpeg.base64EncodedString()]]
+    ]
+    let contents: [[String: Any]] = [["role": "user", "parts": userParts]]
+
+    let body: [String: Any] = [
+      "systemInstruction": ["parts": [["text": HECAConfig.gridSystemPrompt]]],
+      "contents": contents,
+      "generationConfig": [
+        "temperature": 0.2,
+        "responseMimeType": "application/json",
+        "responseSchema": HECAConfig.gridResponseSchema()
+      ]
+    ]
+
+    let text = try await post(url: url, body: body)
+    guard let data = text.data(using: .utf8) else {
+      throw HECAServiceError.noContent
+    }
+    let result: HECAGridResult
+    do {
+      result = try JSONDecoder().decode(HECAGridResult.self, from: data)
+    } catch {
+      throw HECAServiceError.decoding(error.localizedDescription)
+    }
+
+    // Seed the advisor chat with the same image for follow-up questions.
+    chatContents = contents
+    chatSeeded = true
+    return result
   }
 
-  /// Add another captured area to the ongoing assessment.
-  func addArea(image: UIImage, note: String?) async throws -> HECATurn {
-    let text = note?.isEmpty == false
-      ? "Here is another area to assess. Note from me: \(note!)"
-      : "Here is another area to assess."
-    let parts = try Self.imageParts(image: image, text: text)
-    appendUser(parts: parts)
-    return try await complete()
-  }
+  // MARK: - Advisor chat
 
-  /// Send a text comment / question from the worker.
-  func send(text: String) async throws -> HECATurn {
-    appendUser(parts: [["text": text]])
-    return try await complete()
+  /// Send an advisor chat message; returns the assistant's plain-text reply.
+  func chat(text: String, reportSummary: String) async throws -> String {
+    guard let url = HECAConfig.generateContentURL() else {
+      throw HECAServiceError.notConfigured
+    }
+    if !chatSeeded {
+      chatContents = [[
+        "role": "user",
+        "parts": [["text": "Job-site context for this HECA: \(reportSummary)"]]
+      ]]
+      chatSeeded = true
+    }
+    chatContents.append(["role": "user", "parts": [["text": text]]])
+
+    let body: [String: Any] = [
+      "systemInstruction": ["parts": [["text": HECAConfig.chatSystemPrompt]]],
+      "contents": chatContents,
+      "generationConfig": ["temperature": 0.4]
+    ]
+
+    let reply = try await post(url: url, body: body)
+    chatContents.append(["role": "model", "parts": [["text": reply]]])
+    return reply
   }
 
   // MARK: - Private
 
-  private func appendUser(parts: [[String: Any]]) {
-    contents.append(["role": "user", "parts": parts])
-  }
-
-  private static func imageParts(image: UIImage, text: String) throws -> [[String: Any]] {
-    guard let jpeg = image.jpegData(compressionQuality: HECAConfig.jpegQuality) else {
-      throw HECAServiceError.encodingFailed
-    }
-    return [
-      ["text": text],
-      ["inlineData": ["mimeType": "image/jpeg", "data": jpeg.base64EncodedString()]]
-    ]
-  }
-
-  /// Send the current conversation and decode the assistant turn.
-  private func complete() async throws -> HECATurn {
-    guard let url = HECAConfig.generateContentURL() else {
-      throw HECAServiceError.notConfigured
-    }
-
-    let body: [String: Any] = [
-      "systemInstruction": ["parts": [["text": HECAConfig.systemPrompt]]],
-      "contents": contents,
-      "generationConfig": [
-        "temperature": 0.3,
-        "responseMimeType": "application/json",
-        "responseSchema": HECAConfig.turnResponseSchema()
-      ]
-    ]
-
+  /// POST the request body and return the model's concatenated text part.
+  private func post(url: URL, body: [String: Any]) async throws -> String {
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -123,22 +148,7 @@ final class HECAService {
       let bodyStr = String(data: data, encoding: .utf8) ?? ""
       throw HECAServiceError.http(http.statusCode, String(bodyStr.prefix(300)))
     }
-
-    let text = try Self.extractText(from: data)
-    guard let turnData = text.data(using: .utf8) else {
-      throw HECAServiceError.noContent
-    }
-
-    let turn: HECATurn
-    do {
-      turn = try JSONDecoder().decode(HECATurn.self, from: turnData)
-    } catch {
-      throw HECAServiceError.decoding(error.localizedDescription)
-    }
-
-    // Record the assistant's raw JSON turn so it has context on the next call.
-    contents.append(["role": "model", "parts": [["text": text]]])
-    return turn
+    return try Self.extractText(from: data)
   }
 
   /// Pull the model's text part out of the generateContent response envelope.

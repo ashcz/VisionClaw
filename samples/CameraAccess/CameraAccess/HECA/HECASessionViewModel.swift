@@ -1,10 +1,11 @@
 //
 // HECASessionViewModel.swift
 //
-// Drives the interactive HECA conversation: start with a captured frame, then a
-// natural back-and-forth where the worker can comment, ask questions, add more
-// areas, and finish when ready. Finishing saves the report and exposes the
-// existing PDF export and OpenClaw send actions.
+// Drives the structured HECA grid experience: a persistent live preview, a
+// "Perform HECA" action that runs a single-shot assessment of the catalog of
+// high-energy hazards, an editable grid the worker reviews and corrects, an
+// optional advisor chat, and finishing that saves the report and enables PDF
+// export and OpenClaw send.
 //
 
 import SwiftUI
@@ -12,20 +13,22 @@ import SwiftUI
 @MainActor
 final class HECASessionViewModel: ObservableObject {
   enum Phase {
-    case idle
-    case conversing
-    case finished
+    case idle        // form open, not yet assessed
+    case assessing   // running the model
+    case reviewing   // results in, worker editing
   }
 
-  // Conversation state
+  // Form / assessment state
   @Published var phase: Phase = .idle
-  @Published var messages: [HECAChatMessage] = []
-  @Published var currentReport: HECAReport?
-  @Published var isResponding = false
-  @Published var showChat = false
+  @Published var report: HECAReport = .blank()
+  @Published var capturedImage: UIImage?
+  @Published var isAssessing = false
+  @Published var showForm = false
 
-  // Most recent captured frame for the report image (first area).
-  @Published var primaryImage: UIImage?
+  // Advisor chat (secondary panel)
+  @Published var showChat = false
+  @Published var messages: [HECAChatMessage] = []
+  @Published var isChatResponding = false
 
   @Published var errorMessage: String?
 
@@ -40,108 +43,131 @@ final class HECASessionViewModel: ObservableObject {
   private let service = HECAService()
   private let sender = HECASender()
 
-  /// Supplies the current camera frame when the worker captures another area.
+  /// Supplies the current live camera frame (set by StreamView).
   var frameProvider: (() -> UIImage?)?
 
   var openClawConfigured: Bool { GeminiConfig.isOpenClawConfigured }
 
-  // MARK: - Conversation
+  /// Live preview frame if available; otherwise the captured still.
+  var previewImage: UIImage? { frameProvider?() ?? capturedImage }
 
-  /// Begin an interactive HECA with the first captured frame.
-  func startHECA(on image: UIImage?) {
+  /// Whether a live camera feed is currently driving the preview.
+  var hasLiveFeed: Bool { frameProvider?() != nil }
+
+  // MARK: - Presentation
+
+  /// Open the HECA form against the live feed.
+  func openForm() {
+    if phase == .idle { report = .blank() }
+    showForm = true
+  }
+
+  /// Open the HECA form for a still image (e.g. a bundled sample) and show it in
+  /// the preview area.
+  func openForm(stillImage: UIImage) {
+    capturedImage = stillImage
+    report = .blank()
+    phase = .idle
+    showForm = true
+  }
+
+  // MARK: - Assessment
+
+  /// Capture the current frame (or a provided still) and run the grid assessment.
+  func performHECA(stillImage: UIImage? = nil) {
+    let image = stillImage ?? frameProvider?() ?? capturedImage
     guard let image else {
       errorMessage = "No camera frame available yet. Wait for the video to appear and try again."
       return
     }
-    guard !isResponding else { return }
+    guard !isAssessing else { return }
 
-    service.reset()
-    messages = [HECAChatMessage(role: .user, text: "Starting HECA for this area.", image: image)]
-    primaryImage = image
-    currentReport = nil
-    phase = .conversing
-    showChat = true
-    isResponding = true
+    capturedImage = image
+    isAssessing = true
+    phase = .assessing
     errorMessage = nil
-
-    Task {
-      do {
-        let turn = try await service.start(image: image)
-        self.apply(turn)
-      } catch {
-        self.handle(error)
-      }
-      self.isResponding = false
-    }
-  }
-
-  /// Send a typed comment or question from the worker.
-  func sendUserMessage(_ text: String) {
-    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty, !isResponding else { return }
-    messages.append(HECAChatMessage(role: .user, text: trimmed))
-    isResponding = true
-    Task {
-      do {
-        let turn = try await service.send(text: trimmed)
-        self.apply(turn)
-      } catch {
-        self.handle(error)
-      }
-      self.isResponding = false
-    }
-  }
-
-  /// Capture another area (current camera frame) and fold it into the assessment.
-  func addArea(note: String? = nil) {
-    guard let image = frameProvider?() else {
-      errorMessage = "No camera frame available to capture."
-      return
-    }
-    guard !isResponding else { return }
-    if primaryImage == nil { primaryImage = image }
-    let label = note?.isEmpty == false ? "Added another area. \(note!)" : "Added another area."
-    messages.append(HECAChatMessage(role: .user, text: label, image: image))
-    isResponding = true
-    Task {
-      do {
-        let turn = try await service.addArea(image: image, note: note)
-        self.apply(turn)
-      } catch {
-        self.handle(error)
-      }
-      self.isResponding = false
-    }
-  }
-
-  /// Finish the assessment: persist the final report + transcript.
-  func finish() {
-    guard let report = currentReport else {
-      phase = .finished
-      return
-    }
-    phase = .finished
-    let image = primaryImage
-    if let image {
-      try? HECAStore.save(report: report, original: image, transcript: transcriptText())
-    }
-  }
-
-  /// Reset everything (e.g. after closing the finished sheet).
-  func dismissSession() {
-    phase = .idle
+    service.reset()
     messages = []
-    currentReport = nil
-    primaryImage = nil
-    sendStatusMessage = nil
-    showChat = false
+
+    Task {
+      do {
+        let result = try await service.assessGrid(image: image)
+        self.report = HECAReport.from(summary: result.summary, partial: result.assessments)
+        self.phase = .reviewing
+      } catch {
+        self.errorMessage = (error as? LocalizedError)?.errorDescription
+          ?? error.localizedDescription
+        self.phase = self.report.presentHazards.isEmpty ? .idle : .reviewing
+      }
+      self.isAssessing = false
+    }
   }
 
-  // MARK: - Export & send (finished report)
+  /// Editable binding into a single category's assessment row.
+  func binding(for category: HECAHazardCategory) -> Binding<HECACategoryAssessment> {
+    Binding(
+      get: {
+        self.report.assessments.first(where: { $0.category == category })
+          ?? .empty(for: category)
+      },
+      set: { newValue in
+        if let idx = self.report.assessments.firstIndex(where: { $0.category == category }) {
+          self.report.assessments[idx] = newValue
+        }
+      }
+    )
+  }
+
+  // MARK: - Advisor chat
+
+  func sendChat(_ text: String) {
+    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty, !isChatResponding else { return }
+    messages.append(HECAChatMessage(role: .user, text: trimmed))
+    isChatResponding = true
+    let summary = report.summary
+    Task {
+      do {
+        let reply = try await service.chat(text: trimmed, reportSummary: summary)
+        self.messages.append(HECAChatMessage(role: .assistant, text: reply))
+      } catch {
+        let m = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        self.messages.append(HECAChatMessage(role: .system,
+                                             text: "Couldn't reach the advisor: \(m)"))
+      }
+      self.isChatResponding = false
+    }
+  }
+
+  // MARK: - Finish / export / send
+
+  /// Persist the current report (and transcript, if any) to History.
+  func finish() {
+    guard let image = capturedImage else {
+      errorMessage = "Perform an assessment before saving."
+      return
+    }
+    try? HECAStore.save(report: report, original: image, transcript: transcriptText())
+    sendStatusMessage = "Saved to History."
+  }
+
+  /// Reset everything (e.g. after closing the form).
+  func dismissForm() {
+    showForm = false
+    showChat = false
+    phase = .idle
+    capturedImage = nil
+    report = .blank()
+    messages = []
+    sendStatusMessage = nil
+  }
 
   /// Build a PDF and trigger the iOS share sheet.
   func exportPDF() {
-    guard let report = currentReport, let image = primaryImage else { return }
+    guard let image = capturedImage else {
+      errorMessage = "Perform an assessment before exporting."
+      return
+    }
     do {
       let url = try HECAPDFRenderer.render(report: report, original: image)
       self.pdfURL = url
@@ -153,9 +179,10 @@ final class HECASessionViewModel: ObservableObject {
 
   /// Send the report summary to OpenClaw.
   func sendToOpenClaw(destination: String?) {
-    guard let report = currentReport, !isSending else { return }
+    guard !isSending else { return }
     isSending = true
     sendStatusMessage = nil
+    let report = self.report
     Task {
       do {
         _ = try await sender.send(report: report, destination: destination)
@@ -170,23 +197,13 @@ final class HECASessionViewModel: ObservableObject {
 
   // MARK: - Helpers
 
-  private func apply(_ turn: HECATurn) {
-    currentReport = turn.report
-    messages.append(HECAChatMessage(role: .assistant, text: turn.assistantMessage))
-  }
-
-  private func handle(_ error: Error) {
-    let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-    errorMessage = message
-    messages.append(HECAChatMessage(role: .system, text: "Couldn't reach the assessor: \(message)"))
-  }
-
   private func transcriptText() -> String {
-    messages.map { msg in
+    guard !messages.isEmpty else { return "" }
+    return messages.map { msg in
       let who: String
       switch msg.role {
       case .user: who = "Worker"
-      case .assistant: who = "Assessor"
+      case .assistant: who = "Advisor"
       case .system: who = "System"
       }
       return "\(who): \(msg.text)"

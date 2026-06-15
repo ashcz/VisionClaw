@@ -101,7 +101,8 @@ enum HECAStore {
 
   // MARK: - Annotated image
 
-  /// Draw labeled bounding boxes from the report onto a copy of the original image.
+  /// Draw labeled bounding boxes for each unsafe-condition evidence onto a copy
+  /// of the original image, numbered to match the report's evidence order.
   static func annotatedImage(report: HECAReport, original: UIImage) -> UIImage {
     let size = original.size
     let renderer = UIGraphicsImageRenderer(size: size)
@@ -110,17 +111,17 @@ enum HECAStore {
       let cg = ctx.cgContext
       let lineWidth = max(2, size.width * 0.005)
 
-      for (index, hazard) in report.hazards.enumerated() {
-        guard let box = hazard.box2d, box.count == 4 else { continue }
+      for (index, item) in report.allEvidence.enumerated() {
+        guard let box = item.evidence.box2d, box.count == 4 else { continue }
         let rect = Self.rect(fromBox2d: box, imageSize: size)
-        let color = Self.color(for: hazard.controlStatus)
+        let color = Self.color(for: report.controlStatus(for: item.category))
 
         cg.setStrokeColor(color.cgColor)
         cg.setLineWidth(lineWidth)
         cg.stroke(rect)
 
         // Label
-        let label = "\(index + 1). \(hazard.energySource.displayName)"
+        let label = "\(index + 1). \(item.category.displayName)"
         let fontSize = max(12, size.width * 0.025)
         let attrs: [NSAttributedString.Key: Any] = [
           .font: UIFont.boldSystemFont(ofSize: fontSize),

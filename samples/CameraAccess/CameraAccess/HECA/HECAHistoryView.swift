@@ -61,7 +61,7 @@ struct HECAHistoryView: View {
         Text(record.report.createdAt, style: .date)
           .font(.system(size: 14, weight: .medium))
         Text("Score \(record.report.hecaScorePercent)% · "
-          + "\(record.report.hazards.count) hazard(s)")
+          + "\(record.report.presentHazards.count) hazard(s)")
           .font(.system(size: 12))
           .foregroundColor(.secondary)
       }
@@ -99,18 +99,21 @@ struct HECAHistoryDetailView: View {
             .foregroundColor(.secondary)
         }
 
-        ForEach(Array(record.report.hazards.enumerated()), id: \.element.id) { index, hazard in
+        ForEach(Array(record.report.presentHazards.enumerated()), id: \.element.id) { index, hazard in
           VStack(alignment: .leading, spacing: 6) {
-            Text("\(index + 1). \(hazard.description)")
+            Text("\(index + 1). \(hazard.category.displayName)")
               .font(.system(size: 14, weight: .medium))
-            Text("\(hazard.energySource.displayName) · "
-              + "\(hazard.isHighEnergy ? "High-energy" : "Low-energy") · "
-              + "\(hazard.controlStatus.displayName)")
+            Text("\(hazard.category.energySource.displayName) · \(hazard.controlStatus.displayName)")
               .font(.system(size: 12))
               .foregroundColor(.secondary)
-            if !hazard.recommendation.isEmpty {
-              Text("Recommendation: \(hazard.recommendation)")
+            if hazard.hasDirectControl, !hazard.directControl.isEmpty {
+              Text("Direct control: \(hazard.directControl)")
                 .font(.system(size: 12))
+            }
+            if !hazard.comments.isEmpty {
+              Text("Comments: \(hazard.comments)")
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
             }
           }
           .padding(12)

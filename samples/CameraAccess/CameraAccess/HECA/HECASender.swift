@@ -102,16 +102,26 @@ final class HECASender {
     lines.append("HECA Report — \(df.string(from: report.createdAt))")
     lines.append("Summary: \(report.summary)")
     lines.append("HECA score: \(report.hecaScorePercent)% "
-      + "(\(report.directlyControlledHighEnergyHazards.count) of "
-      + "\(report.highEnergyHazards.count) high-energy hazards have a direct control)")
+      + "(\(report.directlyControlledHazards.count) of "
+      + "\(report.presentHazards.count) present high-energy hazards have a direct control)")
     lines.append("")
-    lines.append("Hazards:")
-    for (index, h) in report.hazards.enumerated() {
-      let energy = h.isHighEnergy ? "HIGH-ENERGY" : "low-energy"
-      lines.append("\(index + 1). \(h.description) "
-        + "[\(h.energySource.displayName), \(energy)] — "
-        + "\(h.controlStatus.displayName): \(h.controlDescription). "
-        + "Recommendation: \(h.recommendation)")
+    lines.append("Present high-energy hazards:")
+    let present = report.presentHazards
+    if present.isEmpty {
+      lines.append("None marked present.")
+    } else {
+      for (index, h) in present.enumerated() {
+        let direct = h.hasDirectControl
+          ? "Direct: \(h.directControl.isEmpty ? "yes" : h.directControl)"
+          : "Direct: none"
+        let indirect = h.hasIndirectControl
+          ? "Indirect: \(h.indirectControl.isEmpty ? "yes" : h.indirectControl)"
+          : "Indirect: none"
+        var line = "\(index + 1). \(h.category.displayName) "
+          + "[\(h.category.energySource.displayName)] — \(direct); \(indirect)."
+        if !h.comments.isEmpty { line += " Comments: \(h.comments)" }
+        lines.append(line)
+      }
     }
     return lines.joined(separator: "\n")
   }

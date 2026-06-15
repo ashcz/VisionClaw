@@ -147,9 +147,9 @@ struct StreamView: View {
     } message: {
       Text(webrtcVM.errorMessage ?? "")
     }
-    // HECA conversation sheet
-    .sheet(isPresented: $hecaVM.showChat) {
-      HECAResultView(hecaVM: hecaVM)
+    // HECA assessment sheet
+    .sheet(isPresented: $hecaVM.showForm) {
+      HECAFormView(hecaVM: hecaVM)
     }
     // HECA error alert
     .alert("HECA", isPresented: Binding(
@@ -224,12 +224,12 @@ struct ControlsView: View {
       .opacity(geminiVM.isGeminiActive ? 0.4 : 1.0)
       .disabled(geminiVM.isGeminiActive)
 
-      // HECA button -- start an interactive High Energy Control Assessment
+      // HECA button -- open the structured High Energy Control Assessment form
       CircleButton(icon: "shield.lefthalf.filled", text: "HECA") {
-        hecaVM.startHECA(on: viewModel.currentVideoFrame)
+        hecaVM.openForm()
       }
-      .opacity(hecaVM.isResponding ? 0.4 : 1.0)
-      .disabled(hecaVM.isResponding)
+      .opacity(hecaVM.isAssessing ? 0.4 : 1.0)
+      .disabled(hecaVM.isAssessing)
     }
   }
 }

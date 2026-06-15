@@ -144,8 +144,8 @@ struct NonStreamView: View {
     .sheet(isPresented: $showHECAHistory) {
       HECAHistoryView()
     }
-    .sheet(isPresented: $hecaVM.showChat) {
-      HECAResultView(hecaVM: hecaVM)
+    .sheet(isPresented: $hecaVM.showForm) {
+      HECAFormView(hecaVM: hecaVM)
     }
     .alert("HECA", isPresented: Binding(
       get: { hecaVM.errorMessage != nil },

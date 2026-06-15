@@ -24,7 +24,7 @@ enum HECAPDFRenderer {
 
       y = drawTitle(report: report, atY: y)
       y = drawImage(annotated, atY: y + 8)
-      _ = drawHazards(report.hazards, startY: y + 12, ctx: ctx)
+      _ = drawHazards(report, startY: y + 12, ctx: ctx)
       drawDisclaimer()
     }
     return url
@@ -46,7 +46,7 @@ enum HECAPDFRenderer {
     df.timeStyle = .short
     let meta = "\(df.string(from: report.createdAt))    "
       + "HECA score: \(report.hecaScorePercent)%    "
-      + "High-energy hazards: \(report.highEnergyHazards.count)"
+      + "Present high-energy hazards: \(report.presentHazards.count)"
     meta.draw(in: CGRect(x: margin, y: y + 26, width: contentWidth, height: 18),
               withAttributes: [
                 .font: UIFont.systemFont(ofSize: 10),
@@ -77,20 +77,32 @@ enum HECAPDFRenderer {
     return y + drawH
   }
 
-  private static func drawHazards(_ hazards: [HECAHazard], startY: CGFloat,
+  private static func drawHazards(_ report: HECAReport, startY: CGFloat,
                                   ctx: UIGraphicsPDFRendererContext) -> CGFloat {
     let contentWidth = pageSize.width - margin * 2
     var y = startY
 
-    "Hazards".draw(in: CGRect(x: margin, y: y, width: contentWidth, height: 18),
-                   withAttributes: [
-                    .font: UIFont.boldSystemFont(ofSize: 13),
-                    .foregroundColor: UIColor.black
-                   ])
+    let present = report.presentHazards
+    "Present High-Energy Hazards".draw(
+      in: CGRect(x: margin, y: y, width: contentWidth, height: 18),
+      withAttributes: [
+        .font: UIFont.boldSystemFont(ofSize: 13),
+        .foregroundColor: UIColor.black
+      ])
     y += 22
 
-    for (index, hazard) in hazards.enumerated() {
-      if y > pageSize.height - margin - 60 {
+    if present.isEmpty {
+      "No high-energy hazards were marked present.".draw(
+        in: CGRect(x: margin, y: y, width: contentWidth, height: 16),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 11),
+          .foregroundColor: UIColor.darkGray
+        ])
+      return y + 18
+    }
+
+    for (index, hazard) in present.enumerated() {
+      if y > pageSize.height - margin - 70 {
         ctx.beginPage()
         y = margin
       }
@@ -99,7 +111,7 @@ enum HECAPDFRenderer {
       HECAStore.color(for: hazard.controlStatus).setFill()
       UIBezierPath(rect: swatch).fill()
 
-      let header = "\(index + 1). \(hazard.description)"
+      let header = "\(index + 1). \(hazard.category.displayName)"
       header.draw(in: CGRect(x: margin + 16, y: y, width: contentWidth - 16, height: 16),
                   withAttributes: [
                     .font: UIFont.boldSystemFont(ofSize: 11),
@@ -107,9 +119,13 @@ enum HECAPDFRenderer {
                   ])
       y += 16
 
-      let energyLabel = hazard.isHighEnergy ? "HIGH-ENERGY" : "low-energy"
-      let detail = "\(hazard.energySource.displayName) · \(energyLabel) · "
-        + "\(hazard.controlStatus.displayName): \(hazard.controlDescription)"
+      let direct = hazard.hasDirectControl
+        ? "Direct: \(hazard.directControl.isEmpty ? "yes" : hazard.directControl)"
+        : "Direct: none"
+      let indirect = hazard.hasIndirectControl
+        ? "Indirect: \(hazard.indirectControl.isEmpty ? "yes" : hazard.indirectControl)"
+        : "Indirect: none"
+      let detail = "\(hazard.category.energySource.displayName) · \(direct) · \(indirect)"
       let detailRect = CGRect(x: margin + 16, y: y, width: contentWidth - 16, height: 28)
       (detail as NSString).draw(in: detailRect, withAttributes: [
         .font: UIFont.systemFont(ofSize: 10),
@@ -117,13 +133,16 @@ enum HECAPDFRenderer {
       ])
       y += 28
 
-      let rec = "Recommendation: \(hazard.recommendation)"
-      let recRect = CGRect(x: margin + 16, y: y, width: contentWidth - 16, height: 28)
-      (rec as NSString).draw(in: recRect, withAttributes: [
-        .font: UIFont.italicSystemFont(ofSize: 10),
-        .foregroundColor: UIColor.black
-      ])
-      y += 34
+      if !hazard.comments.isEmpty {
+        let comment = "Comments: \(hazard.comments)"
+        let commentRect = CGRect(x: margin + 16, y: y, width: contentWidth - 16, height: 28)
+        (comment as NSString).draw(in: commentRect, withAttributes: [
+          .font: UIFont.italicSystemFont(ofSize: 10),
+          .foregroundColor: UIColor.black
+        ])
+        y += 28
+      }
+      y += 6
     }
     return y
   }
